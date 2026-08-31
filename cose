@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Room 12 — House Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#E6EBF3;
+    --bg-bottom:#F3F5F9;
+    --ink:#101828;
+    --ink-soft:#5A6479;
+    --card:#FFFFFF;
+    --line: rgba(16,24,40,0.08);
+    --blue:#2F6FED;
+    --amber:#F2A93B;
+    --paid:#3E9C5E;
+    --unpaid:#E15B4E;
+    --shadow: 0 6px 18px rgba(16,24,40,0.07);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg-bottom);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  h1,h2,h3{font-family:'Poppins', sans-serif;}
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 45%);
+    position:relative;
+  }
+
+  /* ---- Header ---- */
+  .plaque{
+    padding:26px 20px 18px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .plaque-num{
+    display:inline-flex;
+    align-items:center;gap:7px;
+    background:var(--card);
+    color:var(--ink);
+    border-radius:22px;
+    padding:9px 16px 9px 10px;
+    font-weight:700;font-size:14px;
+    box-shadow:var(--shadow);
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  .plaque-num .dot{width:26px;height:26px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;}
+  .plaque h1{font-size:32px;margin:0;color:var(--ink);font-weight:700;letter-spacing:-0.5px;}
+  .plaque p{margin:4px 0 0;font-size:13px;color:var(--ink-soft);}
+
+  /* ---- Generic layout ---- */
+  main{flex:1;padding:6px 18px 110px;overflow-y:auto;}
+  .card{
+    background:var(--card);
+    color:var(--ink);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:14px;
+    box-shadow:var(--shadow);
+  }
+  .card h3{margin:0 0 10px;font-size:16px;font-weight:600;}
+  .muted{color:var(--ink-soft);font-size:12.5px;}
+  label{display:block;font-size:12.5px;font-weight:600;margin:12px 0 5px;color:var(--ink);}
+  .card label{color:var(--ink-soft);}
+  input,select{
+    width:100%;
+    padding:11px 12px;
+    border-radius:10px;
+    border:1px solid #DDE2EC;
+    background:#F8F9FC;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+  }
+  button{
+    font-family:inherit;
+    cursor:pointer;
+    border:none;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:#fff;
+    font-weight:600;
+    padding:13px 16px;
+    border-radius:12px;
+    width:100%;
+    font-size:14.5px;
+    margin-top:16px;
+  }
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-ghost{
+    background:var(--card);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:11px 14px;
+    border-radius:12px;
+    font-size:13.5px;
+    box-shadow:var(--shadow);
+  }
+  .btn-small{
+    padding:8px 13px;
+    border-radius:20px;
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .row{display:flex;justify-content:space-between;align-items:center;}
+  .divider{height:1px;background:var(--line);margin:14px 0;}
+  .err{color:var(--unpaid);font-size:12.5px;margin-top:8px;}
+  .center-screen{
+    flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px;
+  }
+  .center-screen h1{font-size:26px;margin-bottom:6px;font-weight:700;letter-spacing:-0.5px;}
+  .center-screen .sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:22px;}
+
+  /* ---- Bottom nav ---- */
+  nav{
+    position:absolute;bottom:0;left:0;right:0;
+    background:var(--card);
+    border-top:1px solid var(--line);
+    display:flex;
+    padding:10px 6px calc(10px + env(safe-area-inset-bottom));
+  }
+  nav button{
+    flex:1;background:none;color:#9CA3B4;
+    display:flex;flex-direction:column;align-items:center;gap:5px;
+    font-size:10.5px;font-weight:600;padding:4px 2px;border-radius:6px;
+  }
+  nav button .ic{
+    width:32px;height:32px;border-radius:50%;
+    background:#F1F3F8;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;
+  }
+  nav button.active{color:var(--blue);}
+  nav button.active .ic{background:#E7EFFE;}
+
+  /* member row list */
+  .member-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--line);
+  }
+  .member-row:last-child{border-bottom:none;}
+  .badge{
+    font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;color:#fff;
+  }
+  .badge.paid{background:var(--paid);}
+  .badge.unpaid{background:var(--unpaid);}
+  .badge.free{background:#9CA3B4;}
+
+  .slot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .slot-card{
+    border:1.5px solid var(--line);border-radius:14px;padding:14px;text-align:center;
+  }
+  .slot-card.taken{background:#F5F6FA;}
+  .slot-card .num{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;}
+
+  .setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .weekday-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);gap:10px;}
+  .weekday-row:last-child{border-bottom:none;}
+  .weekday-row .day{font-weight:600;width:44px;flex-shrink:0;}
+  .loading{padding:40px 20px;text-align:center;color:var(--ink-soft);}
+  .toast{
+    position:absolute;top:14px;left:14px;right:14px;
+    background:var(--unpaid);color:#fff;
+    padding:11px 14px;border-radius:12px;
+    font-size:13px;text-align:center;
+    z-index:50;
+    transition:opacity 0.4s;
+    box-shadow:0 4px 14px rgba(0,0,0,0.2);
+  }
+
+  /* ---- Empty state ---- */
+  .empty-state{
+    display:flex;flex-direction:column;align-items:center;
+    text-align:center;padding:34px 12px 10px;
+  }
+  .empty-state .circle{
+    width:110px;height:110px;border-radius:50%;
+    background:#EBEDF3;
+    display:flex;align-items:center;justify-content:center;
+    font-size:40px;
+    margin-bottom:22px;
+  }
+  .empty-state h3{font-size:19px;margin:0 0 6px;font-weight:700;}
+  .empty-state p{color:var(--ink-soft);font-size:13.5px;margin:0;line-height:1.5;}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading" id="initial-loading">Opening the house board…</div></div>
+
+<script>
+const WEEKDAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+let state = {
+  screen: 'loading',
+  config: null,
+  members: [],
+  rentStatus: {},
+  ebStatus: {},
+  water: {},
+  bookings: [],
+  food: [],
+  sessionMemberId: null,
+  isAdminSession: false,
+  gatePassed: false,
+  tab: 'home',
+  moneySub: 'rent',
+  err: '',
+};
+let loginMode = 'member';
+function isAdminNow(){ return state.isAdminSession; }
+
+// ---------- storage helpers ----------
+function withTimeout(promise, ms){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(()=>reject(new Error('timeout')), ms))
+  ]);
+}
+async function sget(key, shared){
+  try{
+    const r = await withTimeout(window.storage.get(key, shared), 8000);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function sset(key, value, shared, _isRetry){
+  try{
+    await withTimeout(window.storage.set(key, JSON.stringify(value), shared), 8000);
+    return true;
+  }catch(e){
+    if(!_isRetry){
+      await new Promise(r=>setTimeout(r, 900));
+      return sset(key, value, shared, true);
+    }
+    console.error('storage set failed', key, e);
+    showToast("Couldn't save that — check your connection and try again.");
+    return false;
+  }
+}
+function showToast(msg){
+  const app = document.getElementById('app');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  app.appendChild(el);
+  setTimeout(()=>{ el.style.opacity = '0'; }, 3200);
+  setTimeout(()=>{ el.remove(); }, 3700);
+}
+
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function nextMondayISO(){
+  const d = new Date();
+  const day = d.getDay(); // 0 Sun .. 6 Sat
+  const diff = (8 - day) % 7 || 7;
+  const nd = new Date(d);
+  nd.setDate(d.getDate() + (day===1?0:diff===7&&day===1?0:diff));
+  // simpler: find this/next Monday (if today is Monday, use today)
+  const base = new Date(d);
+  const offset = (day===1)?0:((8-day)%7);
+  base.setDate(d.getDate()+offset);
+  base.setHours(0,0,0,0);
+  return base.toISOString().slice(0,10);
+}
+function fmtCountdown(ms){
+  if(ms<0) ms=0;
+  const h = Math.floor(ms/3600000);
+  const m = Math.floor((ms%3600000)/60000);
+  const s = Math.floor((ms%60000)/1000);
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function bookingWindowInfo(){
+  const [sh,sm] = state.config.bookingStart.split(':').map(Number);
+  const [eh,em] = state.config.bookingEnd.split(':').map(Number);
+  const now = new Date();
+  const start = new Date(now); start.setHours(sh,sm,0,0);
+  const end = new Date(now); end.setHours(eh,em,0,0);
+  if(now>=start && now<=end) return {open:true, closesIn: end-now};
+  let nextStart = start;
+  if(now>end) { nextStart = new Date(start); nextStart.setDate(nextStart.getDate()+1); }
+  return {open:false, opensIn: nextStart-now};
+}
+
+async function loadAll(){
+  const [config, members, rentStatus, ebStatus, water, bookings, gatePassed, sessionMemberId, isAdminSession, food] = await Promise.all([
+    sget('room-config', true),
+    sget('members', true),
+    sget('rent-status', true),
+    sget('eb-status', true),
+    sget('water-schedule', true),
+    sget('parking-bookings', true),
+    sget('gate-passed', false),
+    sget('session-member', false),
+    sget('session-admin', false),
+    sget('food-items', true),
+  ]);
+  state.config = config;
+  state.members = members || [];
+  state.rentStatus = rentStatus || {};
+  state.ebStatus = ebStatus || {};
+  state.water = water || {};
+  state.bookings = bookings || [];
+  state.gatePassed = !!gatePassed;
+  state.sessionMemberId = sessionMemberId;
+  state.isAdminSession = !!isAdminSession;
+  state.food = food || [];
+
+  if(!config){ state.screen='setup'; }
+  else if(!state.gatePassed){ state.screen='gate'; }
+  else if(state.isAdminSession){ state.screen='admin'; state.tab = ['members','money','parking','water'].includes(state.tab) ? state.tab : 'members'; }
+  else if(sessionMemberId && state.members.find(m=>m.id===sessionMemberId)){ state.screen='app'; }
+  else{ state.screen='login'; }
+  render();
+}
+
+function me(){ return state.members.find(m=>m.id===state.sessionMemberId); }
+
+// ---------- render root ----------
+function render(){
+  const app = document.getElementById('app');
+  if(state.screen==='setup') return app.innerHTML = renderSetup();
+  if(state.screen==='gate') return app.innerHTML = renderGate();
+  if(state.screen==='login') return app.innerHTML = renderLogin();
+  if(state.screen==='app') return app.innerHTML = renderApp();
+  if(state.screen==='admin') return app.innerHTML = renderAdminApp();
+}
+
+// ================= SETUP (first-ever, admin) =================
+function renderSetup(){
+  const rows = Array.from({length:12}).map((_,i)=>`
+    <div class="setup-grid" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #ded6bc;">
+      <input placeholder="Member ${i+1} name" id="su-name-${i}">
+      <input placeholder="Mobile" id="su-mobile-${i}">
+      <input placeholder="Username" id="su-user-${i}">
+      <input placeholder="Password" id="su-pass-${i}">
+    </div>
+  `).join('');
+  return `
+  <div class="plaque">
+    <div><h1>Set up the house board</h1><p>One-time setup — do this once for the flat</p></div>
+    <div class="plaque-num"><span class="dot">👥</span>12</div>
+  </div>
+  <main>
+    <div class="card">
+      <h3>The basics</h3>
+      <label>Flat / room name</label>
+      <input id="su-roomname" placeholder="e.g. Flat 4B">
+      <label>Total monthly rent (₹)</label>
+      <input id="su-rent" type="number" placeholder="e.g. 25000">
+      <p class="muted" style="margin:4px 0 0;">Split equally across all 12 members automatically.</p>
+      <label>Total parking slots</label>
+      <input id="su-slots" type="number" value="7">
+      <div class="setup-grid" style="margin-top:2px;">
+        <div>
+          <label>Booking opens at</label>
+          <input id="su-wstart" type="time" value="16:00">
+        </div>
+        <div>
+          <label>Booking closes at</label>
+          <input id="su-wend" type="time" value="16:50">
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Admin account</h3>
+      <p class="muted" style="margin-top:-6px;">This is separate from the 12 members below — nobody in the flat needs to know who holds it. Use it to manage rent, water, parking and bills.</p>
+      <label>Admin username</label>
+      <input id="su-admin-user" placeholder="e.g. houseadmin">
+      <label>Admin password</label>
+      <input id="su-admin-pass" type="password" placeholder="Choose a password">
+    </div>
+    <div class="card">
+      <h3>All 12 members</h3>
+      <p class="muted" style="margin-top:-4px;margin-bottom:10px;">Fill in everyone now — these are the 12 residents, not the admin.</p>
+      ${rows}
+    </div>
+    <div id="su-err" class="err"></div>
+    <button class="btn-primary" onclick="submitSetup()">Create the house board</button>
+  </main>`;
+}
+async function submitSetup(){
+  const roomName = document.getElementById('su-roomname').value.trim();
+  const totalRent = Number(document.getElementById('su-rent').value);
+  const slots = Number(document.getElementById('su-slots').value) || 7;
+  const bookingStart = document.getElementById('su-wstart').value || '16:00';
+  const bookingEnd = document.getElementById('su-wend').value || '16:50';
+  const adminUsername = document.getElementById('su-admin-user').value.trim();
+  const adminPassword = document.getElementById('su-admin-pass').value;
+  if(!adminUsername || !adminPassword){
+    document.getElementById('su-err').textContent = 'Set an admin username and password.';
+    return;
+  }
+  const members = [];
+  for(let i=0;i<12;i++){
+    const name = document.getElementById(`su-name-${i}`).value.trim();
+    const mobile = document.getElementById(`su-mobile-${i}`).value.trim();
+    const username = document.getElementById(`su-user-${i}`).value.trim();
+    const password = document.getElementById(`su-pass-${i}`).value;
+    if(!name || !username || !password){
+      document.getElementById('su-err').textContent = 'Every member needs at least a name, username and password.';
+      return;
+    }
+    if(username.toLowerCase()===adminUsername.toLowerCase()){
+      document.getElementById('su-err').textContent = 'A member username matches the admin username — pick a different one.';
+      return;
+    }
+    members.push({
+      id: 'm'+(i+1), name, mobile, username, password,
+      fatherNumber:'', whatsapp:'', email:'',
+      family: [], vehicles: []
+    });
+  }
+  if(!roomName || !totalRent){
+    document.getElementById('su-err').textContent = 'Add a flat name and rent amount.';
+    return;
+  }
+  const config = { roomName, totalRent, totalSlots: slots, bookingStart, bookingEnd, adminUsername, adminPassword };
+  await sset('room-config', config, true);
+  await sset('members', members, true);
+  await loadAll();
+}
+
+// ================= GATE (per device, before login) =================
+function renderGate(){
+  return `
+  <div class="center-screen">
+    <h1>Before you go in</h1>
+    <p class="sub">${state.config.roomName} asks every visitor to leave a few details first.</p>
+    <label>Name</label>
+    <input id="g-name" placeholder="Your full name">
+    <label>Mobile number</label>
+    <input id="g-mobile" placeholder="Your mobile number">
+    <label>Father's number</label>
+    <input id="g-father" placeholder="Father's mobile number">
+    <label>WhatsApp number</label>
+    <input id="g-whatsapp" placeholder="WhatsApp number">
+    <div id="g-err" class="err"></div>
+    <button class="btn-primary" onclick="submitGate()">Continue</button>
+  </div>`;
+}
+async function submitGate(){
+  const name = document.getElementById('g-name').value.trim();
+  const mobile = document.getElementById('g-mobile').value.trim();
+  const father = document.getElementById('g-father').value.trim();
+  const whatsapp = document.getElementById('g-whatsapp').value.trim();
+  if(!name||!mobile||!father||!whatsapp){
+    document.getElementById('g-err').textContent = 'Please fill in all four fields.';
+    return;
+  }
+  const log = (await sget('entries-log', true)) || [];
+  log.push({name, mobile, father, whatsapp, at: new Date().toISOString()});
+  await sset('entries-log', log, true);
+  await sset('gate-passed', true, false);
+  state.gatePassed = true;
+  state.screen = 'login';
+  render();
+}
+
+// ================= LOGIN =================
+function renderLogin(){
+  if(loginMode==='admin'){
+    return `
+    <div class="center-screen">
+      <h1>Admin login</h1>
+      <p class="sub">${state.config.roomName}</p>
+      <label>Admin username</label>
+      <input id="a-user" placeholder="Admin username">
+      <label>Admin password</label>
+      <input id="a-pass" type="password" placeholder="Admin password">
+      <div id="l-err" class="err"></div>
+      <button class="btn-primary" onclick="submitAdminLogin()">Log in</button>
+      <button class="btn-ghost" style="width:100%;margin-top:10px;" onclick="loginMode='member';render();">Back to member login</button>
+    </div>`;
+  }
+  return `
+  <div class="center-screen">
+    <h1>${state.config.roomName}</h1>
+    <p class="sub">Sign in with your house board account</p>
+    <label>Username</label>
+    <input id="l-user" placeholder="Username">
+    <label>Password</label>
+    <input id="l-pass" type="password" placeholder="Password">
+    <div id="l-err" class="err"></div>
+    <button class="btn-primary" onclick="submitLogin()">Log in</button>
+    <p class="muted" style="text-align:center;margin-top:16px;"><a href="#" onclick="loginMode='admin';render();return false;" style="color:var(--ink-soft);">Admin login</a></p>
+  </div>`;
+}
+async function submitLogin(){
+  const u = document.getElementById('l-user').value.trim().toLowerCase();
+  const p = document.getElementById('l-pass').value;
+  const found = state.members.find(m=>m.username.toLowerCase()===u && m.password===p);
+  if(!found){
+    document.getElementById('l-err').textContent = 'Username or password not recognised.';
+    return;
+  }
+  await sset('session-member', found.id, false);
+  state.sessionMemberId = found.id;
+  state.screen = 'app';
+  state.tab = 'home';
+  render();
+}
+async function submitAdminLogin(){
+  const u = document.getElementById('a-user').value.trim().toLowerCase();
+  const p = document.getElementById('a-pass').value;
+  if(u !== state.config.adminUsername.toLowerCase() || p !== state.config.adminPassword){
+    document.getElementById('l-err').textContent = 'Admin username or password not recognised.';
+    return;
+  }
+  await sset('session-admin', true, false);
+  state.isAdminSession = true;
+  state.screen = 'admin';
+  state.tab = 'members';
+  render();
+}
+async function logout(){
+  await sset('session-member', null, false);
+  state.sessionMemberId = null;
+  loginMode = 'member';
+  state.screen = 'login';
+  render();
+}
+async function logoutAdmin(){
+  await sset('session-admin', false, false);
+  state.isAdminSession = false;
+  loginMode = 'member';
+  state.screen = 'login';
+  render();
+}
+
+// ================= MAIN APP SHELL (member) =================
+function renderApp(){
+  const m = me();
+  const tabs = [
+    ['home','Home','🏠'],
+    ['parking','Parking','🚗'],
+    ['money','Money','💰'],
+    ['water','Water','💧'],
+    ['profile','Profile','👤'],
+  ];
+  return `
+  <div class="plaque">
+    <div><h1>${state.config.roomName}</h1><p>Hi ${m.name.split(' ')[0]}</p></div>
+    <div class="plaque-num"><span class="dot">🚗</span>${state.config.totalSlots} slots</div>
+  </div>
+  <main id="tab-content">${renderTab()}</main>
+  <nav>
+    ${tabs.map(([id,label,ic])=>`
+      <button class="${state.tab===id?'active':''}" onclick="setTab('${id}')">
+        <span class="ic">${ic}</span>${label}
+      </button>`).join('')}
+  </nav>`;
+}
+function setTab(t){ state.tab = t; render(); if(t==='parking') startParkingTimer(); }
+
+function renderTab(){
+  if(state.tab==='home') return renderHome();
+  if(state.tab==='parking') return renderParking();
+  if(state.tab==='money') return renderMoney();
+  if(state.tab==='water') return renderWater();
+  if(state.tab==='profile') return renderProfile();
+}
+
+// ---------- HOME ----------
+function perPersonRent(){
+  const total = state.config.totalRent || 0;
+  const n = state.members.length || 1;
+  return total / n;
+}
+function fmtMoney(n){
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+function renderHome(){
+  const m = me();
+  const key = m.id+'-'+todayKey();
+  const paid = !!(state.rentStatus[key] && state.rentStatus[key].paid);
+  const todayName = WEEKDAYS[(new Date().getDay()+6)%7];
+  const duty = state.water[todayName] || [];
+  const dutyNames = duty.map(id=>state.members.find(x=>x.id===id)?.name).filter(Boolean);
+  const myBooking = state.bookings.find(b=>b.memberId===m.id && b.weekStart===nextMondayISO());
+  const win = bookingWindowInfo();
+
+  return `
+    <div class="card">
+      <h3>This month's rent</h3>
+      <div class="row">
+        <span>${fmtMoney(perPersonRent())} <span class="muted">your share</span></span>
+        <span class="badge ${paid?'paid':'unpaid'}">${paid?'Paid':'Not paid'}</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Water duty today (${todayName})</h3>
+      <p style="margin:0;">${dutyNames.length ? dutyNames.join(' & ') : 'Not assigned yet'}</p>
+    </div>
+    <div class="card">
+      <h3>Parking</h3>
+      ${myBooking
+        ? `<p style="margin:0;">You hold slot <b>${myBooking.slotNumber}</b> for the week of ${myBooking.weekStart}.</p>`
+        : win.open
+          ? `<p style="margin:0;">Booking is open right now — head to the Parking tab.</p>`
+          : `<p style="margin:0;">You don't have a slot this week. Booking opens ${state.config.bookingStart}–${state.config.bookingEnd} daily.</p>`
+      }
+    </div>
+  `;
+}
+
+
+// ---------- PARKING ----------
+let parkingTimerHandle = null;
+function startParkingTimer(){
+  if(parkingTimerHandle) clearInterval(parkingTimerHandle);
+  parkingTimerHandle = setInterval(()=>{
+    if(state.tab==='parking'){
+      const el = document.getElementById('parking-countdown');
+      if(el){
+        const win = bookingWindowInfo();
+        el.textContent = win.open ? fmtCountdown(win.closesIn) : fmtCountdown(win.opensIn);
+      } else {
+        clearInterval(parkingTimerHandle);
+      }
+    } else {
+      clearInterval(parkingTimerHandle);
+    }
+  }, 1000);
+}
+function renderParking(){
+  const win = bookingWindowInfo();
+  const week = nextMondayISO();
+  const myExisting = state.bookings.find(b=>b.memberId===me().id && b.weekStart===week);
+
+  // ---- Confirmation card: shown whenever the member already holds a slot,
+  // whether the booking window is currently open or closed. This is the
+  // "after you've booked" state.
+  const confirmCard = myExisting ? `
+    <div class="card" style="border-left:4px solid var(--paid);">
+      <div class="row">
+        <h3 style="margin:0;">You're booked ✓</h3>
+        <span class="badge paid">Confirmed</span>
+      </div>
+      <p style="margin:10px 0 2px;font-family:'Roboto Slab',serif;font-size:22px;">Slot #${myExisting.slotNumber}</p>
+      <p class="muted" style="margin:0 0 12px;">Week of ${myExisting.weekStart} · booked ${new Date(myExisting.bookedAt).toLocaleString([], {weekday:'short', hour:'2-digit', minute:'2-digit'})}</p>
+      <button class="btn-ghost" style="width:100%;color:#8a3126;border-color:#8a3126;" onclick="cancelBooking('${myExisting.bookingId}')">Cancel my booking</button>
+    </div>` : '';
+
+  if(!win.open){
+    return `
+    ${confirmCard}
+    <div class="card" style="text-align:center;">
+      <h3>${myExisting ? 'Booking window is closed' : 'Booking is closed'}</h3>
+      <p class="muted">Slots open for booking each day from ${state.config.bookingStart} to ${state.config.bookingEnd}.</p>
+      <p style="font-family:'Roboto Slab',serif;font-size:26px;margin:14px 0 2px;" id="parking-countdown">${fmtCountdown(win.opensIn)}</p>
+      <p class="muted" style="margin:0;">until booking opens</p>
+    </div>`;
+  }
+
+  const slots = Array.from({length: state.config.totalSlots}).map((_,i)=>{
+    const num = i+1;
+    const taken = state.bookings.find(b=>b.slotNumber===num && b.weekStart===week);
+    const takenBy = taken ? state.members.find(m=>m.id===taken.memberId) : null;
+    const isMine = taken && taken.memberId===me().id;
+    const canBook = !taken && !myExisting;
+    return `
+      <div class="slot-card ${taken?'taken':''}" ${isMine?'style="border-color:var(--paid);"':''}>
+        <div class="num">#${num}</div>
+        ${taken
+          ? `<p class="muted" style="margin:6px 0 0;">${isMine?'You':(takenBy?takenBy.name:'Taken')}</p>`
+          : canBook
+            ? `<button class="btn-small btn-primary" style="margin-top:8px;padding:8px;" onclick="bookSlot(${num})">Book</button>`
+            : `<p class="muted" style="margin:6px 0 0;">Free</p>`
+        }
+      </div>`;
+  }).join('');
+
+  return `
+    ${confirmCard}
+    <div class="card">
+      <div class="row">
+        <h3 style="margin:0;">Slots for week of ${week}</h3>
+        <span id="parking-countdown" class="muted">${fmtCountdown(win.closesIn)}</span>
+      </div>
+      <p class="muted" style="margin:8px 0 12px;">${myExisting ? 'You already hold a slot this week — see above.' : 'One slot per person, per week.'}</p>
+      <div class="slot-grid">${slots}</div>
+    </div>`;
+}
+async function bookSlot(num){
+  const week = nextMondayISO();
+  const bookings = (await sget('parking-bookings', true)) || [];
+  const conflict = bookings.find(b=>b.slotNumber===num && b.weekStart===week);
+  const already = bookings.find(b=>b.memberId===me().id && b.weekStart===week);
+  if(conflict || already){ state.bookings = bookings; render(); return; }
+  bookings.push({bookingId:'b'+Date.now(), memberId: me().id, slotNumber:num, weekStart:week, bookedAt:new Date().toISOString()});
+  const ok = await sset('parking-bookings', bookings, true);
+  if(ok) state.bookings = bookings;
+  render();
+  startParkingTimer();
+}
+async function cancelBooking(bookingId){
+  const bookings = (await sget('parking-bookings', true)) || [];
+  const b = bookings.find(x=>x.bookingId===bookingId);
+  if(!b) return;
+  const mine = me() && b.memberId === me().id;
+  if(!mine && !isAdminNow()) return;
+  const next = bookings.filter(x=>x.bookingId!==bookingId);
+  const ok = await sset('parking-bookings', next, true);
+  if(ok) state.bookings = next;
+  render();
+  startParkingTimer();
+}
+
+// ---------- MONEY (Rent / EB Bill / Food) ----------
+function setMoneySub(sub){ state.moneySub = sub; render(); }
+function renderMoney(){
+  const admin = isAdminNow();
+  const pills = ['rent','eb','food'].map(id=>{
+    const labels = {rent:'Rent', eb:'EB Bill', food:'Food'};
+    const active = state.moneySub===id;
+    return `<button class="btn-small" style="flex:1;background:${active?'var(--ink)':'var(--card)'};color:${active?'#fff':'var(--ink)'};box-shadow:var(--shadow);" onclick="setMoneySub('${id}')">${labels[id]}</button>`;
+  }).join('');
+  const pillRow = `<div class="row" style="gap:8px;margin-bottom:14px;">${pills}</div>`;
+
+  if(state.moneySub==='eb') return pillRow + renderEbSection(admin);
+  if(state.moneySub==='food') return pillRow + renderFoodSection(admin);
+  return pillRow + renderRentSection(admin);
+}
+
+function renderRentSection(admin){
+  const key = todayKey();
+  const rows = state.members.map(m=>{
+    const rs = state.rentStatus[m.id+'-'+key];
+    const paid = !!(rs && rs.paid);
+    return `
+      <div class="member-row">
+        <span>${m.name}</span>
+        ${admin
+          ? `<button class="btn-small badge ${paid?'paid':'unpaid'}" onclick="toggleRent('${m.id}')">${paid?'Paid':'Not paid'}</button>`
+          : `<span class="badge ${paid?'paid':'unpaid'}">${paid?'Paid':'Not paid'}</span>`
+        }
+      </div>`;
+  }).join('');
+  const paidCount = state.members.filter(m=>state.rentStatus[m.id+'-'+key]?.paid).length;
+  return `
+    <div class="card">
+      <h3>Rent calculator</h3>
+      ${admin ? `
+      <label>Total monthly rent (₹)</label>
+      <div class="setup-grid" style="grid-template-columns:1fr auto;">
+        <input id="rent-total-input" type="number" value="${state.config.totalRent||0}">
+        <button class="btn-small btn-primary" style="margin:0;" onclick="saveTotalRent()">Save</button>
+      </div>
+      <div class="divider"></div>` : ''}
+      <div class="row"><span class="muted">Total rent</span><span>${fmtMoney(state.config.totalRent||0)}</span></div>
+      <div class="row" style="margin-top:6px;"><span class="muted">Split ${state.members.length} ways</span><b>${fmtMoney(perPersonRent())} / person</b></div>
+    </div>
+    <div class="card">
+      <h3>Rent — ${key}</h3>
+      <p class="muted" style="margin-top:-6px;">${fmtMoney(perPersonRent())} per person · ${paidCount}/${state.members.length} paid</p>
+      <div class="divider"></div>
+      ${rows}
+      ${admin ? `<p class="muted" style="margin-top:10px;">Tap a name's badge to mark paid / not paid.</p>` : ''}
+    </div>`;
+}
+async function saveTotalRent(){
+  if(!isAdminNow()) return;
+  const val = Number(document.getElementById('rent-total-input').value);
+  if(!val || val<0) return;
+  const config = (await sget('room-config', true)) || state.config;
+  config.totalRent = val;
+  const ok = await sset('room-config', config, true);
+  if(ok) state.config = config;
+  render();
+}
+async function toggleRent(memberId){
+  if(!isAdminNow()) return;
+  const key = memberId+'-'+todayKey();
+  const rentStatus = (await sget('rent-status', true)) || {};
+  const currentlyPaid = !!(rentStatus[key] && rentStatus[key].paid);
+  rentStatus[key] = { paid: !currentlyPaid, paidOn: !currentlyPaid ? new Date().toISOString() : null };
+  const ok = await sset('rent-status', rentStatus, true);
+  if(ok) state.rentStatus = rentStatus;
+  render();
+}
+
+function renderEbSection(admin){
+  const key = todayKey();
+  const ebAmount = state.config.ebAmount || 0;
+  const perPerson = ebAmount / (state.members.length || 1);
+  const rows = state.members.map(m=>{
+    const rs = state.ebStatus[m.id+'-'+key];
+    const paid = !!(rs && rs.paid);
+    return `
+      <div class="member-row">
+        <span>${m.name}</span>
+        ${admin
+          ? `<button class="btn-small badge ${paid?'paid':'unpaid'}" onclick="toggleEb('${m.id}')">${paid?'Paid':'Not paid'}</button>`
+          : `<span class="badge ${paid?'paid':'unpaid'}">${paid?'Paid':'Not paid'}</span>`
+        }
+      </div>`;
+  }).join('');
+  const paidCount = state.members.filter(m=>state.ebStatus[m.id+'-'+key]?.paid).length;
+  return `
+    <div class="card">
+      <h3>Electricity (EB) bill — ${key}</h3>
+      ${admin ? `
+      <label>This month's EB bill total (₹)</label>
+      <div class="setup-grid" style="grid-template-columns:1fr auto;">
+        <input id="eb-total-input" type="number" value="${ebAmount}">
+        <button class="btn-small btn-primary" style="margin:0;" onclick="saveEbAmount()">Save</button>
+      </div>
+      <div class="divider"></div>` : ''}
+      <div class="row"><span class="muted">Total bill</span><span>${fmtMoney(ebAmount)}</span></div>
+      <div class="row" style="margin-top:6px;"><span class="muted">Split ${state.members.length} ways</span><b>${fmtMoney(perPerson)} / person</b></div>
+    </div>
+    <div class="card">
+      <h3>Who's paid</h3>
+      <p class="muted" style="margin-top:-6px;">${paidCount}/${state.members.length} paid</p>
+      <div class="divider"></div>
+      ${rows}
+      ${admin ? `<p class="muted" style="margin-top:10px;">Tap a name's badge to mark paid / not paid.</p>` : ''}
+    </div>`;
+}
+async function saveEbAmount(){
+  if(!isAdminNow()) return;
+  const val = Number(document.getElementById('eb-total-input').value);
+  if(val==null || val<0 || isNaN(val)) return;
+  const config = (await sget('room-config', true)) || state.config;
+  config.ebAmount = val;
+  const ok = await sset('room-config', config, true);
+  if(ok) state.config = config;
+  render();
+}
+async function toggleEb(memberId){
+  if(!isAdminNow()) return;
+  const key = memberId+'-'+todayKey();
+  const ebStatus = (await sget('eb-status', true)) || {};
+  const currentlyPaid = !!(ebStatus[key] && ebStatus[key].paid);
+  ebStatus[key] = { paid: !currentlyPaid, paidOn: !currentlyPaid ? new Date().toISOString() : null };
+  const ok = await sset('eb-status', ebStatus, true);
+  if(ok) state.ebStatus = ebStatus;
+  render();
+}
+
+function renderFoodSection(admin){
+  const total = state.food.reduce((sum,f)=>sum+Number(f.price||0), 0);
+  const perPerson = total / (state.members.length || 1);
+  const entries = [...state.food].sort((a,b)=> new Date(b.addedAt)-new Date(a.addedAt));
+  const rows = entries.map(f=>{
+    const addedBy = state.members.find(m=>m.id===f.addedBy);
+    const canDelete = admin || (me() && f.addedBy===me().id);
+    return `
+      <div class="member-row">
+        <span>${f.name}<br><span class="muted">${addedBy?addedBy.name:'Someone'} · ${new Date(f.addedAt).toLocaleDateString([], {day:'2-digit', month:'short'})}</span></span>
+        <span style="text-align:right;">
+          <div>${fmtMoney(f.price)}</div>
+          ${canDelete ? `<button class="btn-small btn-ghost" style="margin-top:4px;color:var(--unpaid);border-color:var(--unpaid);" onclick="deleteFoodItem('${f.id}')">Remove</button>` : ''}
+        </span>
+      </div>`;
+  }).join('') || `<div class="empty-state"><div class="circle">🍲</div><h3>No food logged yet</h3><p>Add what you bought below and it'll split evenly.</p></div>`;
+
+  return `
+    <div class="card">
+      <h3>Food spend</h3>
+      <div class="row"><span class="muted">Total spent</span><span>${fmtMoney(total)}</span></div>
+      <div class="row" style="margin-top:6px;"><span class="muted">Split ${state.members.length} ways</span><b>${fmtMoney(perPerson)} / person</b></div>
+    </div>
+    <div class="card">
+      <h3>Add an item</h3>
+      <label>Item name</label>
+      <input id="food-name" placeholder="e.g. Vegetables, milk, gas cylinder">
+      <label>Price (₹)</label>
+      <input id="food-price" type="number" placeholder="e.g. 450">
+      <button class="btn-primary" onclick="addFoodItem()">Add to the list</button>
+    </div>
+    <div class="card">
+      <h3>All entries</h3>
+      <div class="divider"></div>
+      ${rows}
+    </div>`;
+}
+async function addFoodItem(){
+  const name = document.getElementById('food-name').value.trim();
+  const price = Number(document.getElementById('food-price').value);
+  if(!name || !price || price<0) return;
+  const food = (await sget('food-items', true)) || [];
+  food.push({ id:'f'+Date.now(), name, price, addedBy: admin_or_member_id(), addedAt: new Date().toISOString() });
+  const ok = await sset('food-items', food, true);
+  if(ok) state.food = food;
+  render();
+}
+function admin_or_member_id(){
+  return me() ? me().id : null;
+}
+async function deleteFoodItem(id){
+  const food = (await sget('food-items', true)) || [];
+  const item = food.find(f=>f.id===id);
+  if(!item) return;
+  if(!isAdminNow() && !(me() && item.addedBy===me().id)) return;
+  const next = food.filter(f=>f.id!==id);
+  const ok = await sset('food-items', next, true);
+  if(ok) state.food = next;
+  render();
+}
+
+// ---------- WATER ----------
+function renderWater(){
+  const rows = WEEKDAYS.map(day=>{
+    const assigned = state.water[day] || [null,null];
+    const opts = (current)=> `<option value="">—</option>` + state.members.map(m=>
+      `<option value="${m.id}" ${current===m.id?'selected':''}>${m.name}</option>`).join('');
+    return `
+      <div class="weekday-row">
+        <span class="day">${day}</span>
+        <select onchange="setWaterDuty('${day}', 0, this.value)" style="flex:1;">${opts(assigned[0])}</select>
+        <select onchange="setWaterDuty('${day}', 1, this.value)" style="flex:1;">${opts(assigned[1])}</select>
+      </div>`;
+  }).join('');
+  return `
+    <div class="card">
+      <h3>Weekly water duty</h3>
+      <p class="muted" style="margin-top:-6px;">Two people per day, repeats every week. Anyone can update this — pick your own day, or the admin can assign the whole week at once.</p>
+      <div class="divider"></div>
+      ${rows}
+      ${isAdminNow() ? `<button class="btn-ghost" style="width:100%;margin-top:14px;" onclick="autoAssignWater()">Auto-assign the whole week</button>` : ''}
+    </div>`;
+}
+async function setWaterDuty(day, slotIndex, memberId){
+  const water = (await sget('water-schedule', true)) || {};
+  const pair = water[day] ? [...water[day]] : [null, null];
+  pair[slotIndex] = memberId || null;
+  water[day] = pair;
+  const ok = await sset('water-schedule', water, true);
+  if(ok) state.water = water;
+  render();
+}
+async function autoAssignWater(){
+  if(!isAdminNow()) return;
+  const ids = state.members.map(m=>m.id);
+  const water = {};
+  let cursor = 0;
+  WEEKDAYS.forEach(day=>{
+    const a = ids[cursor % ids.length];
+    const b = ids[(cursor+1) % ids.length];
+    water[day] = [a, b];
+    cursor += 2;
+  });
+  const ok = await sset('water-schedule', water, true);
+  if(ok) state.water = water;
+  render();
+}
+
+// ---------- PROFILE ----------
+function renderProfile(){
+  const m = me();
+  const myBookings = state.bookings.filter(b=>b.memberId===m.id).sort((a,b)=>b.weekStart.localeCompare(a.weekStart));
+  const vehicleRows = m.vehicles.map((v,i)=>`
+    <div class="member-row"><span>${v.number} <span class="muted">(${v.type})</span></span>
+    <button class="btn-small btn-ghost" style="color:var(--unpaid);border-color:var(--unpaid);" onclick="removeVehicle(${i})">Remove</button></div>
+  `).join('') || `<div class="empty-state"><div class="circle">🚙</div><h3>No vehicles yet</h3><p>Add your vehicle number below and it'll show up here.</p></div>`;
+  const historyRows = myBookings.slice(0,8).map(b=>`
+    <div class="member-row"><span>Week of ${b.weekStart}</span><span class="muted">Slot #${b.slotNumber}</span></div>
+  `).join('') || `<div class="empty-state"><div class="circle">🅿️</div><h3>No Active Bookings</h3><p>Your parking bookings will appear here</p></div>`;
+
+  return `
+    <div class="card">
+      <h3>${m.name}</h3>
+      <p class="muted" style="margin:0 0 10px;">${m.mobile || 'No mobile on file'}</p>
+      <label>Email</label>
+      <input id="p-email" value="${m.email||''}" placeholder="Add an email">
+      <button class="btn-primary" onclick="saveEmail()">Save</button>
+    </div>
+    <div class="card">
+      <h3>Change password</h3>
+      <p class="muted" style="margin-top:-6px;">Only you can reset your own password — enter your current one to confirm it's you.</p>
+      <label>Current password</label>
+      <input id="pw-current" type="password" placeholder="Current password">
+      <label>New password</label>
+      <input id="pw-new" type="password" placeholder="New password">
+      <div id="pw-err" class="err"></div>
+      <button class="btn-primary" onclick="changeOwnPassword()">Update password</button>
+    </div>
+    <div class="card">
+      <h3>Vehicles</h3>
+      ${vehicleRows}
+      <div class="divider"></div>
+      <label>Vehicle number</label>
+      <input id="v-number" placeholder="e.g. MH12 AB 1234">
+      <label>Vehicle type</label>
+      <select id="v-type"><option>Car</option><option>Bike</option><option>Scooter</option></select>
+      <button class="btn-primary" onclick="addVehicle()">Add vehicle</button>
+    </div>
+    <div class="card">
+      <h3>Booking history</h3>
+      ${historyRows}
+    </div>
+    <button class="btn-ghost" style="width:100%;" onclick="logout()">Log out</button>
+  `;
+}
+async function changeOwnPassword(){
+  const current = document.getElementById('pw-current').value;
+  const next = document.getElementById('pw-new').value.trim();
+  const errEl = document.getElementById('pw-err');
+  if(current !== me().password){
+    errEl.textContent = 'Current password is incorrect.';
+    return;
+  }
+  if(!next){
+    errEl.textContent = 'Enter a new password.';
+    return;
+  }
+  const members = (await sget('members', true)) || [];
+  const idx = members.findIndex(x=>x.id===me().id);
+  members[idx].password = next;
+  await sset('members', members, true);
+  state.members = members;
+  errEl.textContent = '';
+  render();
+}
+async function saveEmail(){
+  const val = document.getElementById('p-email').value.trim();
+  const members = (await sget('members', true)) || [];
+  const idx = members.findIndex(x=>x.id===me().id);
+  members[idx].email = val;
+  await sset('members', members, true);
+  state.members = members;
+  render();
+}
+async function addVehicle(){
+  const number = document.getElementById('v-number').value.trim();
+  const type = document.getElementById('v-type').value;
+  if(!number) return;
+  const members = (await sget('members', true)) || [];
+  const idx = members.findIndex(x=>x.id===me().id);
+  members[idx].vehicles.push({number, type});
+  await sset('members', members, true);
+  state.members = members;
+  render();
+}
+async function removeVehicle(i){
+  const members = (await sget('members', true)) || [];
+  const idx = members.findIndex(x=>x.id===me().id);
+  members[idx].vehicles.splice(i,1);
+  await sset('members', members, true);
+  state.members = members;
+  render();
+}
+
+// ================= ADMIN APP SHELL =================
+function renderAdminApp(){
+  const tabs = [
+    ['members','Members','👥'],
+    ['parking','Parking','🚗'],
+    ['money','Money','💰'],
+    ['water','Water','💧'],
+  ];
+  return `
+  <div class="plaque">
+    <div><h1>${state.config.roomName}</h1><p>Admin dashboard</p></div>
+    <div class="plaque-num"><span class="dot">🛠</span>Admin</div>
+  </div>
+  <main id="tab-content">${renderAdminTab()}</main>
+  <nav>
+    ${tabs.map(([id,label,ic])=>`
+      <button class="${state.tab===id?'active':''}" onclick="setAdminTab('${id}')">
+        <span class="ic">${ic}</span>${label}
+      </button>`).join('')}
+  </nav>`;
+}
+function setAdminTab(t){ state.tab = t; render(); if(t==='parking') startParkingTimer(); }
+function renderAdminTab(){
+  if(state.tab==='members') return renderAdminMembers();
+  if(state.tab==='parking') return renderAdminParking();
+  if(state.tab==='money') return renderMoney();
+  if(state.tab==='water') return renderWater();
+}
+
+// ---------- ADMIN: MEMBERS ----------
+function renderAdminMembers(){
+  const key = todayKey();
+  const cards = state.members.map(m=>{
+    const rentPaid = !!state.rentStatus[m.id+'-'+key]?.paid;
+    const ebPaid = !!state.ebStatus[m.id+'-'+key]?.paid;
+    const vehicles = m.vehicles.length ? m.vehicles.map(v=>`${v.number} (${v.type})`).join(', ') : 'None on file';
+    return `
+    <div class="card">
+      <div class="row"><h3 style="margin:0;">${m.name}</h3><span class="muted">@${m.username}</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="muted">Mobile</span><span>${m.mobile||'—'}</span></div>
+      <div class="row" style="margin-top:6px;"><span class="muted">Email</span><span>${m.email||'—'}</span></div>
+      <div class="row" style="margin-top:6px;"><span class="muted">Vehicles</span><span style="text-align:right;max-width:60%;">${vehicles}</span></div>
+      <div class="row" style="margin-top:10px;">
+        <span class="badge ${rentPaid?'paid':'unpaid'}">Rent: ${rentPaid?'Paid':'Not paid'}</span>
+        <span class="badge ${ebPaid?'paid':'unpaid'}">EB: ${ebPaid?'Paid':'Not paid'}</span>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="card">
+      <h3>All members</h3>
+      <p class="muted" style="margin-top:-6px;">Full contact and vehicle details. Toggle paid/unpaid from the Money tab.</p>
+    </div>
+    ${cards}
+    <button class="btn-ghost" style="width:100%;" onclick="logoutAdmin()">Log out of admin</button>
+  `;
+}
+
+// ---------- ADMIN: PARKING OVERRIDES ----------
+function renderAdminParking(){
+  const week = nextMondayISO();
+  const slotOptions = (currentId)=> `<option value="">— empty —</option>` + state.members.map(m=>
+    `<option value="${m.id}" ${currentId===m.id?'selected':''}>${m.name}</option>`).join('');
+
+  const slotRows = Array.from({length: state.config.totalSlots}).map((_,i)=>{
+    const num = i+1;
+    const booking = state.bookings.find(b=>b.slotNumber===num && b.weekStart===week);
+    return `
+      <div class="weekday-row">
+        <span class="day">#${num}</span>
+        <select style="flex:1;" onchange="adminSetSlot(${num}, this.value)">
+          ${slotOptions(booking ? booking.memberId : null)}
+        </select>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="card">
+      <h3>Parking overrides — week of ${week}</h3>
+      <p class="muted" style="margin-top:-6px;">Reassign any slot manually, bypassing the booking window.</p>
+      <div class="divider"></div>
+      ${slotRows}
+    </div>
+  `;
+}
+async function adminSetSlot(num, memberId){
+  if(!isAdminNow()) return;
+  const week = nextMondayISO();
+  let bookings = (await sget('parking-bookings', true)) || [];
+  // clear this slot for the week, and clear this member's other booking that week (one slot per person)
+  bookings = bookings.filter(b => !(b.slotNumber===num && b.weekStart===week));
+  if(memberId){
+    bookings = bookings.filter(b => !(b.memberId===memberId && b.weekStart===week));
+    bookings.push({bookingId:'b'+Date.now(), memberId, slotNumber:num, weekStart:week, bookedAt:new Date().toISOString()});
+  }
+  const ok = await sset('parking-bookings', bookings, true);
+  if(ok) state.bookings = bookings;
+  render();
+}
+
+// Watchdog: if we're somehow still stuck on the initial loading screen
+// after 10s (e.g. storage backend totally unresponsive), stop waiting
+// and offer a manual retry instead of a dead blank page forever.
+setTimeout(()=>{
+  const stillLoading = document.getElementById('initial-loading');
+  if(stillLoading){
+    document.getElementById('app').innerHTML = `
+      <div class="center-screen">
+        <h1>Taking longer than usual</h1>
+        <p class="sub">The connection to the house board is slow right now. This usually clears up in a moment.</p>
+        <button class="btn-primary" onclick="location.reload()">Retry</button>
+      </div>`;
+  }
+}, 10000);
+
+loadAll().catch(()=>{
+  document.getElementById('app').innerHTML = `
+    <div class="center-screen">
+      <h1>Something went wrong</h1>
+      <p class="sub">The house board couldn't load. Try again.</p>
+      <button class="btn-primary" onclick="location.reload()">Retry</button>
+    </div>`;
+});
+</script>
+</body>
+</html>
